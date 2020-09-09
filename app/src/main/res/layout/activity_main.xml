@@ -150,12 +150,14 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
-        android:layout_height="191dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:fadeScrollbars="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/recentActivityText" />
+        app:layout_constraintTop_toBottomOf="@+id/recentActivityText"
+        tools:itemCount="10"
+        tools:listitem="@layout/activity_item" />
 
 
 
