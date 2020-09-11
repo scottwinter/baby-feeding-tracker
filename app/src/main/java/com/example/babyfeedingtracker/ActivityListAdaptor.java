@@ -1,6 +1,8 @@
 package com.example.babyfeedingtracker;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,7 +37,7 @@ public class ActivityListAdaptor extends RecyclerView.Adapter<ActivityListAdapto
         return mDataset.size();
     }
 
-    static class ActivityViewHolder extends RecyclerView.ViewHolder {
+    class ActivityViewHolder extends RecyclerView.ViewHolder {
 
         TextView activityText;
         ActivityViewHolder(final View itemView) {
@@ -45,15 +47,30 @@ public class ActivityListAdaptor extends RecyclerView.Adapter<ActivityListAdapto
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    final Dialog dialog = new Dialog(itemView.getContext());
-//                    dialog.setContentView(R.layout.item);
-                    dialog.setTitle("Do you really want to delete this todo?" );
-                    dialog.setCancelable(true);
-
-                    dialog.show();
-                    return false;
+                    new AlertDialog.Builder(v.getContext())
+                            .setTitle("Delete Activity")
+                            .setMessage("Are you sure you want to delete this Activity?")
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    removeAt(getAdapterPosition());
+                                }
+                            })
+                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // do nothing
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                    return true;
                 }
             });
         }
+    }
+
+    public void removeAt(int position) {
+        mDataset.remove(position);
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, mDataset.size());
     }
 }

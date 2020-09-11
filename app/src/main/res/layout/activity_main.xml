@@ -149,16 +149,17 @@
     </androidx.cardview.widget.CardView>
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recentActivityList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:fadeScrollbars="false"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/recentActivityText"
         tools:itemCount="10"
-        tools:listitem="@layout/activity_item"
-        android:id="@+id/recentActivityList"/>
+        tools:listitem="@layout/activity_item" />
 
 
 
