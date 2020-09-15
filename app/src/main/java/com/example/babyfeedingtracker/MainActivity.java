@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements DeleteActivityDia
 
     private ArrayList<ActivityItem> populateData() {
         dataList = new ArrayList<>();
-        for(int i = 0; i <= 5; i++) {
+        for(int i = 0; i <= 20; i++) {
             ActivityItem item = new ActivityItem("Feeding");
             dataList.add(item);
         }
