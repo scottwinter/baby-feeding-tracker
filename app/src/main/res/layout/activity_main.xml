@@ -169,7 +169,7 @@
         android:clickable="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@android:drawable/ic_input_add" />
+        app:srcCompat="@drawable/ic_drawable_add_24dp" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

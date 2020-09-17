@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Bundle;
 
 import com.example.babyfeedingtracker.model.ActivityItem;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 
@@ -32,6 +33,8 @@ public class MainActivity extends AppCompatActivity implements DeleteActivityDia
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
                 layoutManager.getOrientation());
         recyclerView.addItemDecoration(dividerItemDecoration);
+        FloatingActionButton fab;
+        fab = (FloatingActionButton) findViewById(R.id.floatingActionButton);
     }
 
 
