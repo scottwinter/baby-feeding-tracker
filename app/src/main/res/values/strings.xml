@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Baby Feeding Tracker</string>
+    <string-array name="activities">
+        <item>Feeding</item>
+        <item>Diaper</item>
+    </string-array>
 </resources>

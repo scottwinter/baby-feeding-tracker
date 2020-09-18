@@ -113,6 +113,7 @@ public class MainActivity extends AppCompatActivity
             calendar.set(Calendar.MILLISECOND, 0);
 
             long millis = calendar.getTimeInMillis();
+
         }
     }
 }
