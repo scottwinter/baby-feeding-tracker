@@ -10,7 +10,10 @@ import android.widget.TextView;
 
 import com.example.babyfeedingtracker.model.ActivityItem;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,7 +32,10 @@ public class ActivityListAdaptor extends RecyclerView.Adapter<ActivityListAdapto
 
     @Override
     public void onBindViewHolder(ActivityViewHolder holder, int position) {
-        holder.activityText.setText(mDataset.get(position).getActivityType());
+        DateFormat dateFormat = new SimpleDateFormat("MM/dd hh:mm a");
+        Date date = new Date(mDataset.get(position).getDateTime());
+        holder.activityText.setText(mDataset.get(position).getActivityType().name());
+        holder.activityTime.setText(dateFormat.format(date));
     }
 
     @Override
@@ -40,9 +46,11 @@ public class ActivityListAdaptor extends RecyclerView.Adapter<ActivityListAdapto
     class ActivityViewHolder extends RecyclerView.ViewHolder {
 
         TextView activityText;
+        TextView activityTime;
         ActivityViewHolder(final View itemView) {
             super(itemView);
             activityText = itemView.findViewById(R.id.activity_item_text);
+            activityTime = itemView.findViewById(R.id.activity_time);
 
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
