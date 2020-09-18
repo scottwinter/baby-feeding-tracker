@@ -9,10 +9,13 @@ import android.os.Bundle;
 
 import com.example.babyfeedingtracker.model.ActivityItem;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements DeleteActivityDialog.DeleteActivityDialogListener {
+public class MainActivity extends AppCompatActivity
+        implements DeleteActivityDialog.DeleteActivityDialogListener {
 
     ArrayList<ActivityItem> dataList;
 
@@ -35,6 +38,12 @@ public class MainActivity extends AppCompatActivity implements DeleteActivityDia
         recyclerView.addItemDecoration(dividerItemDecoration);
         FloatingActionButton fab;
         fab = (FloatingActionButton) findViewById(R.id.floatingActionButton);
+
+        // Write a message to the database
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("message");
+
+        myRef.setValue("Hello, World!");
     }
 
 
