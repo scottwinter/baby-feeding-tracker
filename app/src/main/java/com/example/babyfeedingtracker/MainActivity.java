@@ -34,7 +34,6 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         RecyclerView recyclerView = findViewById(R.id.recentActivityList);
         recyclerView.setHasFixedSize(true);
 
@@ -50,10 +49,11 @@ public class MainActivity extends AppCompatActivity
         fab = (FloatingActionButton) findViewById(R.id.floatingActionButton);
         fab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                showTimePickerDialog(v);
+                Intent intent = new Intent(getApplicationContext(), NewEventActivity.class);
+//                intent.putExtra("eventId", -1);
+                startActivity(intent);
             }
         });
-
 
         // Write a message to the database
         FirebaseDatabase database = FirebaseDatabase.getInstance();
