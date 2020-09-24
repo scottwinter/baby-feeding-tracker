@@ -4,10 +4,10 @@ import com.example.babyfeedingtracker.ActivityType;
 
 public class ActivityItem {
     private int id;
-    private ActivityType activityType;
+    private String activityType;
     private Long dateTime;
 
-    public ActivityItem(ActivityType activityType) {
+    public ActivityItem(String activityType) {
         this.activityType = activityType;
     }
 
@@ -19,11 +19,11 @@ public class ActivityItem {
         this.id = id;
     }
 
-    public ActivityType getActivityType() {
+    public String getActivityType() {
         return activityType;
     }
 
-    public void setActivityType(ActivityType activityType) {
+    public void setActivityType(String activityType) {
         this.activityType = activityType;
     }
 

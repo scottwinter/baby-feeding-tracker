@@ -34,7 +34,7 @@ public class ActivityListAdaptor extends RecyclerView.Adapter<ActivityListAdapto
     public void onBindViewHolder(ActivityViewHolder holder, int position) {
         DateFormat dateFormat = new SimpleDateFormat("MM/dd hh:mm a");
         Date date = new Date(mDataset.get(position).getDateTime());
-        holder.activityText.setText(mDataset.get(position).getActivityType().name());
+        holder.activityText.setText(mDataset.get(position).getActivityType());
         holder.activityTime.setText(dateFormat.format(date));
     }
 
