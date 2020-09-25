@@ -10,11 +10,21 @@ import android.view.View;
 import android.widget.TimePicker;
 
 import com.example.babyfeedingtracker.model.ActivityItem;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -35,16 +45,36 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if(dataList == null) {
-            dataList = new ArrayList<>();
-        }
-
-        if(dataList == null) {
+        if(todaysFeedings == null) {
             todaysFeedings = new ArrayList<>();
         }
 
-        if(dataList == null) {
+        if(todaysDiapers == null) {
             todaysDiapers = new ArrayList<>();
+        }
+
+        String eventType = getIntent().getStringExtra("eventType");
+        long dateTime = getIntent().getLongExtra("dateTime", 0L);
+        if(dateTime > 0 && eventType != null) {
+            ActivityItem activityItem = new ActivityItem(eventType);
+            activityItem.setDateTime(dateTime);
+            addItemToTodaysLists(activityItem);
+
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("activities")
+                    .add(activityItem)
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            Log.d("DATA", "DocumentSnapshot added with ID: " + documentReference.getId());
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w("DATA", "Error adding document", e);
+                        }
+                    });
         }
 
         recyclerView = findViewById(R.id.recentActivityList);
@@ -53,7 +83,7 @@ public class MainActivity extends AppCompatActivity
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-        recyclerView.setAdapter(new ActivityListAdaptor(dataList));
+        recyclerView.setAdapter(new ActivityListAdaptor(populateData()));
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
                 layoutManager.getOrientation());
@@ -69,22 +99,41 @@ public class MainActivity extends AppCompatActivity
         });
 
 
+
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        String eventType = getIntent().getStringExtra("eventType");
-        Long dateTime = getIntent().getLongExtra("dateTime", 0L);
-        if(dateTime > 0 && eventType != null) {
-            ActivityItem activityItem = new ActivityItem(eventType);
-            activityItem.setDateTime(dateTime);
-            addItemToTodaysLists(activityItem);
-            dataList.add(activityItem);
-            refreshData();
-
-        }
-    }
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        String eventType = getIntent().getStringExtra("eventType");
+//        long dateTime = getIntent().getLongExtra("dateTime", 0L);
+//        if(dateTime > 0 && eventType != null) {
+//            ActivityItem activityItem = new ActivityItem(eventType);
+//            activityItem.setDateTime(dateTime);
+//            addItemToTodaysLists(activityItem);
+//
+//            FirebaseFirestore db = FirebaseFirestore.getInstance();
+//            db.collection("activities")
+//                    .add(activityItem)
+//                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+//                        @Override
+//                        public void onSuccess(DocumentReference documentReference) {
+//                            Log.d("DATA", "DocumentSnapshot added with ID: " + documentReference.getId());
+//                        }
+//                    })
+//                    .addOnFailureListener(new OnFailureListener() {
+//                        @Override
+//                        public void onFailure(@NonNull Exception e) {
+//                            Log.w("DATA", "Error adding document", e);
+//                        }
+//                    });
+//
+//
+//            dataList.add(activityItem);
+//            refreshData();
+//
+//        }
+//    }
 
     private void refreshData() {
         ActivityListAdaptor mAdapter = new ActivityListAdaptor(dataList);
@@ -94,12 +143,33 @@ public class MainActivity extends AppCompatActivity
 
     private ArrayList<ActivityItem> populateData() {
         dataList = new ArrayList<>();
-        for(int i = 0; i <= 5; i++) {
-            ActivityItem item = new ActivityItem("Feeding");
-            Calendar calendar = Calendar.getInstance();
-            item.setDateTime(calendar.getTimeInMillis());
-            dataList.add(item);
-        }
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("activities")
+                .orderBy("dateTime", Query.Direction.DESCENDING)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Log.i("CLOUDDATA", "getting firestore data.");
+                                ActivityItem item = new ActivityItem();
+                                item.setId(document.getId());
+                                Log.i("CLOUDDATA", "document.getData(): " +document.getData());
+                                if(document.getData().get("activityType") != null) {
+                                    item.setActivityType(document.getData().get("activityType").toString());
+                                }
+                                if(document.getData().get("dateTime") != null) {
+                                    item.setDateTime(Long.valueOf(document.getData().get("dateTime").toString()));
+                                }
+                                dataList.add(item);
+                            }
+                        } else {
+                            Log.d("ERROR", "Error getting documents: ", task.getException());
+                        }
+                        refreshData();
+                    }
+                });
 
         return dataList;
     }

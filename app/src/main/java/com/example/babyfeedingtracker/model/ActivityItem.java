@@ -1,21 +1,20 @@
 package com.example.babyfeedingtracker.model;
 
-import com.example.babyfeedingtracker.ActivityType;
-
 public class ActivityItem {
-    private int id;
+    private String id;
     private String activityType;
     private Long dateTime;
 
+    public ActivityItem(){};
     public ActivityItem(String activityType) {
         this.activityType = activityType;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

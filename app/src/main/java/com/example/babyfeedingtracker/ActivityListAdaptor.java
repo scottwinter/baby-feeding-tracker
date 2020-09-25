@@ -3,18 +3,23 @@ package com.example.babyfeedingtracker;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.babyfeedingtracker.model.ActivityItem;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class ActivityListAdaptor extends RecyclerView.Adapter<ActivityListAdaptor.ActivityViewHolder> {
@@ -77,6 +82,22 @@ public class ActivityListAdaptor extends RecyclerView.Adapter<ActivityListAdapto
     }
 
     public void removeAt(int position) {
+        String itemId = mDataset.get(position).getId();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("activities").document(itemId)
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("DELETE", "DocumentSnapshot successfully deleted!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("DELETE", "Error deleting document", e);
+                    }
+                });
         mDataset.remove(position);
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, mDataset.size());
