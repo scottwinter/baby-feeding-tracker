@@ -4,6 +4,7 @@ public class ActivityItem {
     private String id;
     private String activityType;
     private Long dateTime;
+    private String activitytSubType;
 
     public ActivityItem(){};
     public ActivityItem(String activityType) {
@@ -32,5 +33,13 @@ public class ActivityItem {
 
     public void setDateTime(Long dateTime) {
         this.dateTime = dateTime;
+    }
+
+    public String getActivitytSubType() {
+        return activitytSubType;
+    }
+
+    public void setActivitytSubType(String activitytSubType) {
+        this.activitytSubType = activitytSubType;
     }
 }

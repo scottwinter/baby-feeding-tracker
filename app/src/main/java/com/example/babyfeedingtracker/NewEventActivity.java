@@ -1,13 +1,11 @@
 package com.example.babyfeedingtracker;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -18,12 +16,15 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.DialogFragment;
 
-public class NewEventActivity extends AppCompatActivity {
+public class NewEventActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
-    Spinner spin;
+    Spinner activitySpinner;
+    Spinner activitySubTypeSpinner;
     Long selectedTime;
+    String[] diaperSubTypes;
+    ArrayAdapter feedingArrayAdapter;
+    String[] feedingSubTypes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,14 +33,21 @@ public class NewEventActivity extends AppCompatActivity {
 
         Resources res = getResources();
         String[] eventTypes = res.getStringArray(R.array.activities);
+        feedingSubTypes = res.getStringArray(R.array.feedingSubTypes);
+        diaperSubTypes = res.getStringArray(R.array.diaperSubTypes);
         //Getting the instance of Spinner and applying OnItemSelectedListener on it
-        spin = (Spinner) findViewById(R.id.activitySpinner);
+        activitySpinner = findViewById(R.id.activitySpinner);
+        activitySubTypeSpinner = findViewById(R.id.activitySubTypeSpinner);
 
-        //Creating the ArrayAdapter instance having the country list
         ArrayAdapter aa = new ArrayAdapter(this,R.layout.spinner_list_item, eventTypes);
         aa.setDropDownViewResource(R.layout.spinner_list_item);
-        //Setting the ArrayAdapter data on the Spinner
-        spin.setAdapter(aa);
+        activitySpinner.setAdapter(aa);
+        activitySpinner.setOnItemSelectedListener(this);
+
+        feedingArrayAdapter = new ArrayAdapter(this,R.layout.spinner_list_item, feedingSubTypes);
+        feedingArrayAdapter.setDropDownViewResource(R.layout.spinner_list_item);
+        activitySubTypeSpinner.setAdapter(feedingArrayAdapter);
+
         Button setValues = findViewById(R.id.date_time_set);
         setValues.setOnClickListener(new View.OnClickListener() {
            @Override
@@ -60,10 +68,34 @@ public class NewEventActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view,
+                               int pos, long id) {
+        Log.i("NEWEVENT", "Inside onItemSelected with position: " + pos);
+        if(pos == 1) {
+            feedingArrayAdapter = new ArrayAdapter(this,R.layout.spinner_list_item, diaperSubTypes);
+            feedingArrayAdapter.setDropDownViewResource(R.layout.spinner_list_item);
+            activitySubTypeSpinner.setAdapter(feedingArrayAdapter);
+            feedingArrayAdapter.notifyDataSetChanged();
+        } else if(pos == 0) {
+            feedingArrayAdapter = new ArrayAdapter(this,R.layout.spinner_list_item, feedingSubTypes);
+            feedingArrayAdapter.setDropDownViewResource(R.layout.spinner_list_item);
+            activitySubTypeSpinner.setAdapter(feedingArrayAdapter);
+            feedingArrayAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+        // Another interface callback
+    }
+
     public void setNewEvent() {
-        String event = spin.getSelectedItem().toString();
+        String event = activitySpinner.getSelectedItem().toString();
+        String subType = activitySubTypeSpinner.getSelectedItem().toString();
         Intent intent = new Intent(NewEventActivity.this, MainActivity.class);
         intent.putExtra("eventType", event);
+        intent.putExtra("subType", subType);
         intent.putExtra("dateTime", selectedTime);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);

@@ -4,4 +4,14 @@
         <item>Feeding</item>
         <item>Diaper</item>
     </string-array>
+
+    <string-array name="feedingSubTypes">
+        <item>Breast</item>
+        <item>Bottle</item>
+    </string-array>
+
+    <string-array name="diaperSubTypes">
+        <item>Dirty</item>
+        <item>Wet</item>
+    </string-array>
 </resources>

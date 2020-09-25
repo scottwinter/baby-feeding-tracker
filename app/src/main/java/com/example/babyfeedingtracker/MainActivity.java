@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.example.babyfeedingtracker.model.ActivityItem;
@@ -21,8 +23,10 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,33 +36,37 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class MainActivity extends AppCompatActivity
-        implements DeleteActivityDialog.DeleteActivityDialogListener {
+        implements DeleteActivityDialog.DeleteActivityDialogListener, OnItemDeleteListener {
 
+    TextView feedingNumber;
+    TextView diaperNumber;
+    TextView latestFeedingTime;
+    TextView latestDiaperTime;
     ArrayList<ActivityItem> dataList;
     ArrayList<ActivityItem> todaysFeedings;
     ArrayList<ActivityItem> todaysDiapers;
     RecyclerView recyclerView;
-
+    ProgressBar spinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if(todaysFeedings == null) {
-            todaysFeedings = new ArrayList<>();
-        }
+        feedingNumber = findViewById(R.id.feedingCount);
+        diaperNumber = findViewById(R.id.diaperCount);
+        latestFeedingTime = findViewById(R.id.feedingDateTime);
+        latestDiaperTime = findViewById(R.id.diaperDateTime);
+        spinner = findViewById(R.id.progressSpinner);
+        spinner.setVisibility(View.VISIBLE);
 
-        if(todaysDiapers == null) {
-            todaysDiapers = new ArrayList<>();
-        }
+
 
         String eventType = getIntent().getStringExtra("eventType");
         long dateTime = getIntent().getLongExtra("dateTime", 0L);
         if(dateTime > 0 && eventType != null) {
             ActivityItem activityItem = new ActivityItem(eventType);
             activityItem.setDateTime(dateTime);
-            addItemToTodaysLists(activityItem);
 
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             db.collection("activities")
@@ -66,7 +74,7 @@ public class MainActivity extends AppCompatActivity
                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
                         public void onSuccess(DocumentReference documentReference) {
-                            Log.d("DATA", "DocumentSnapshot added with ID: " + documentReference.getId());
+//                            Log.d("DATA", "DocumentSnapshot added with ID: " + documentReference.getId());
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -82,8 +90,9 @@ public class MainActivity extends AppCompatActivity
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-
-        recyclerView.setAdapter(new ActivityListAdaptor(populateData()));
+        ActivityListAdaptor adaptor = new ActivityListAdaptor(populateData());
+        adaptor.setOnItemDeleteListener(this);
+        recyclerView.setAdapter(adaptor);
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
                 layoutManager.getOrientation());
@@ -137,6 +146,7 @@ public class MainActivity extends AppCompatActivity
 
     private void refreshData() {
         ActivityListAdaptor mAdapter = new ActivityListAdaptor(dataList);
+        mAdapter.setOnItemDeleteListener(this);
         mAdapter.notifyDataSetChanged();
         recyclerView.setAdapter(mAdapter);
     }
@@ -152,10 +162,8 @@ public class MainActivity extends AppCompatActivity
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                Log.i("CLOUDDATA", "getting firestore data.");
                                 ActivityItem item = new ActivityItem();
                                 item.setId(document.getId());
-                                Log.i("CLOUDDATA", "document.getData(): " +document.getData());
                                 if(document.getData().get("activityType") != null) {
                                     item.setActivityType(document.getData().get("activityType").toString());
                                 }
@@ -167,14 +175,19 @@ public class MainActivity extends AppCompatActivity
                         } else {
                             Log.d("ERROR", "Error getting documents: ", task.getException());
                         }
+                        addItemToTodaysLists();
                         refreshData();
+                        spinner.setVisibility(View.GONE);
                     }
                 });
 
         return dataList;
     }
 
-    private void addItemToTodaysLists(ActivityItem item) {
+    private void addItemToTodaysLists() {
+        todaysFeedings = new ArrayList<>();
+        todaysDiapers = new ArrayList<>();
+
         Calendar c = Calendar.getInstance();
         c.set(Calendar.HOUR_OF_DAY, 0);
         c.set(Calendar.MINUTE, 0);
@@ -182,28 +195,37 @@ public class MainActivity extends AppCompatActivity
         c.set(Calendar.MILLISECOND, 0);
 
         long todayInMillis = c.getTimeInMillis();
+        long latestFeeding = todayInMillis;
+        long latestDiaper = todayInMillis;
 
-        if(item.getActivityType().equalsIgnoreCase("feeding")){
-            if(item.getDateTime() >= todayInMillis) {
-                todaysFeedings.add(item);
+        for(ActivityItem item : dataList){
+            if(item.getActivityType().equalsIgnoreCase("feeding")){
+                if(item.getDateTime() >= todayInMillis) {
+                    if(item.getDateTime() > latestFeeding) {
+                        latestFeeding = item.getDateTime();
+                    }
+                    todaysFeedings.add(item);
+                }
+            }
+
+            if(item.getActivityType().equalsIgnoreCase("diaper")) {
+                if(item.getDateTime() >= todayInMillis) {
+                    if(item.getDateTime() > latestDiaper) {
+                        latestDiaper = item.getDateTime();
+                    }
+                    todaysDiapers.add(item);
+                }
             }
         }
 
-        if(item.getActivityType().equalsIgnoreCase("diaper")) {
-            if(item.getDateTime() >= todayInMillis) {
-                todaysDiapers.add(item);
-            }
-        }
-
-        Log.i("COUNTS", "Todays feedins: " + todaysFeedings.size());
-        Log.i("COUNTS", "Todays diapers: " + todaysDiapers.size());
-
+        java.text.DateFormat dateFormat = new SimpleDateFormat("MM/dd hh:mm a");
+        Date feedingDate = new Date(latestFeeding);
+        latestFeedingTime.setText(dateFormat.format(feedingDate));
+        Date diaperDate = new Date(latestDiaper);
+        latestDiaperTime.setText(dateFormat.format(diaperDate));
+        feedingNumber.setText(String.valueOf(todaysFeedings.size()));
+        diaperNumber.setText(String.valueOf(todaysDiapers.size()));
     }
-
-//    @Override
-//    public void addNewActivity(String todoItem) {
-//        dataList.add(new ActivityItem(todoItem));
-//    }
 
     @Override
     public void deleteActivity(ActivityItem activityItem) {
@@ -213,6 +235,11 @@ public class MainActivity extends AppCompatActivity
     public void showTimePickerDialog(View v) {
         DialogFragment newFragment = new TimePickerFragment();
         newFragment.show(getSupportFragmentManager(), "timePicker");
+    }
+
+    @Override
+    public void onItemDelete() {
+        populateData();
     }
 
     public static class TimePickerFragment extends DialogFragment

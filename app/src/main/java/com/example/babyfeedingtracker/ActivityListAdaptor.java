@@ -24,9 +24,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class ActivityListAdaptor extends RecyclerView.Adapter<ActivityListAdaptor.ActivityViewHolder> {
     private ArrayList<ActivityItem> mDataset;
+    private OnItemDeleteListener onItemDeleteListener;
 
     ActivityListAdaptor(ArrayList<ActivityItem> myDataset) {
         mDataset = myDataset;
+    }
+
+    public void setOnItemDeleteListener(OnItemDeleteListener listener) {
+        this.onItemDeleteListener = listener;
     }
 
     @Override
@@ -101,5 +106,8 @@ public class ActivityListAdaptor extends RecyclerView.Adapter<ActivityListAdapto
         mDataset.remove(position);
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, mDataset.size());
+        if(onItemDeleteListener != null) {
+            onItemDeleteListener.onItemDelete();
+        }
     }
 }
