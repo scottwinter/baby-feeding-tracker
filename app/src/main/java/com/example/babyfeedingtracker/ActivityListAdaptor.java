@@ -1,7 +1,6 @@
 package com.example.babyfeedingtracker;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -45,6 +44,7 @@ public class ActivityListAdaptor extends RecyclerView.Adapter<ActivityListAdapto
         DateFormat dateFormat = new SimpleDateFormat("MM/dd hh:mm a");
         Date date = new Date(mDataset.get(position).getDateTime());
         holder.activityText.setText(mDataset.get(position).getActivityType());
+        holder.activitySubType.setText(mDataset.get(position).getActivitySubType());
         holder.activityTime.setText(dateFormat.format(date));
     }
 
@@ -57,9 +57,11 @@ public class ActivityListAdaptor extends RecyclerView.Adapter<ActivityListAdapto
 
         TextView activityText;
         TextView activityTime;
+        TextView activitySubType;
         ActivityViewHolder(final View itemView) {
             super(itemView);
             activityText = itemView.findViewById(R.id.activity_item_text);
+            activitySubType = itemView.findViewById(R.id.activity_subtype_text);
             activityTime = itemView.findViewById(R.id.activity_time);
 
             itemView.setOnLongClickListener(new View.OnLongClickListener() {

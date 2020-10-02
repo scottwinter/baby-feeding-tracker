@@ -4,7 +4,7 @@ public class ActivityItem {
     private String id;
     private String activityType;
     private Long dateTime;
-    private String activitytSubType;
+    private String activitySubType;
 
     public ActivityItem(){};
     public ActivityItem(String activityType) {
@@ -35,11 +35,11 @@ public class ActivityItem {
         this.dateTime = dateTime;
     }
 
-    public String getActivitytSubType() {
-        return activitytSubType;
+    public String getActivitySubType() {
+        return activitySubType;
     }
 
-    public void setActivitytSubType(String activitytSubType) {
-        this.activitytSubType = activitytSubType;
+    public void setActivitySubType(String activitySubType) {
+        this.activitySubType = activitySubType;
     }
 }

@@ -60,12 +60,12 @@ public class MainActivity extends AppCompatActivity
         spinner = findViewById(R.id.progressSpinner);
         spinner.setVisibility(View.VISIBLE);
 
-
-
         String eventType = getIntent().getStringExtra("eventType");
+        String activitySubType = getIntent().getStringExtra("activitySubType");
         long dateTime = getIntent().getLongExtra("dateTime", 0L);
         if(dateTime > 0 && eventType != null) {
             ActivityItem activityItem = new ActivityItem(eventType);
+            activityItem.setActivitySubType(activitySubType);
             activityItem.setDateTime(dateTime);
 
             FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -102,47 +102,10 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), NewEventActivity.class);
-//                intent.putExtra("eventId", -1);
                 startActivityForResult(intent, 1);
             }
         });
-
-
-
     }
-
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        String eventType = getIntent().getStringExtra("eventType");
-//        long dateTime = getIntent().getLongExtra("dateTime", 0L);
-//        if(dateTime > 0 && eventType != null) {
-//            ActivityItem activityItem = new ActivityItem(eventType);
-//            activityItem.setDateTime(dateTime);
-//            addItemToTodaysLists(activityItem);
-//
-//            FirebaseFirestore db = FirebaseFirestore.getInstance();
-//            db.collection("activities")
-//                    .add(activityItem)
-//                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-//                        @Override
-//                        public void onSuccess(DocumentReference documentReference) {
-//                            Log.d("DATA", "DocumentSnapshot added with ID: " + documentReference.getId());
-//                        }
-//                    })
-//                    .addOnFailureListener(new OnFailureListener() {
-//                        @Override
-//                        public void onFailure(@NonNull Exception e) {
-//                            Log.w("DATA", "Error adding document", e);
-//                        }
-//                    });
-//
-//
-//            dataList.add(activityItem);
-//            refreshData();
-//
-//        }
-//    }
 
     private void refreshData() {
         ActivityListAdaptor mAdapter = new ActivityListAdaptor(dataList);
@@ -166,6 +129,9 @@ public class MainActivity extends AppCompatActivity
                                 item.setId(document.getId());
                                 if(document.getData().get("activityType") != null) {
                                     item.setActivityType(document.getData().get("activityType").toString());
+                                }
+                                if(document.getData().get("activitySubType") != null) {
+                                    item.setActivitySubType(document.getData().get("activitySubType").toString());
                                 }
                                 if(document.getData().get("dateTime") != null) {
                                     item.setDateTime(Long.valueOf(document.getData().get("dateTime").toString()));
@@ -195,24 +161,24 @@ public class MainActivity extends AppCompatActivity
         c.set(Calendar.MILLISECOND, 0);
 
         long todayInMillis = c.getTimeInMillis();
-        long latestFeeding = todayInMillis;
-        long latestDiaper = todayInMillis;
+        long latestFeeding = 0L;
+        long latestDiaper = 0L;
 
         for(ActivityItem item : dataList){
             if(item.getActivityType().equalsIgnoreCase("feeding")){
+                if(item.getDateTime() > latestFeeding) {
+                    latestFeeding = item.getDateTime();
+                }
                 if(item.getDateTime() >= todayInMillis) {
-                    if(item.getDateTime() > latestFeeding) {
-                        latestFeeding = item.getDateTime();
-                    }
                     todaysFeedings.add(item);
                 }
             }
 
             if(item.getActivityType().equalsIgnoreCase("diaper")) {
+                if(item.getDateTime() > latestDiaper) {
+                    latestDiaper = item.getDateTime();
+                }
                 if(item.getDateTime() >= todayInMillis) {
-                    if(item.getDateTime() > latestDiaper) {
-                        latestDiaper = item.getDateTime();
-                    }
                     todaysDiapers.add(item);
                 }
             }
@@ -265,7 +231,6 @@ public class MainActivity extends AppCompatActivity
             calendar.set(Calendar.MILLISECOND, 0);
 
             long millis = calendar.getTimeInMillis();
-
         }
     }
 }

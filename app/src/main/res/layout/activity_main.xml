@@ -61,7 +61,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="2"
+                android:text="0"
                 android:textSize="48sp" />
 
             <TextView
@@ -78,7 +78,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:paddingTop="8dp"
-                android:text="09/05 3:20 PM"
+                android:text=""
                 android:textSize="24sp"
                 android:textStyle="bold" />
 
@@ -115,7 +115,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="6"
+                android:text="0"
                 android:textSize="48sp" />
 
             <TextView
@@ -132,7 +132,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:paddingTop="8dp"
-                android:text="09/05 3:20 PM"
+                android:text=""
                 android:textSize="24sp"
                 android:textStyle="bold" />
 
@@ -178,7 +178,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/recentActivityList" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

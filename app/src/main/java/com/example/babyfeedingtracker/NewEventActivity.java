@@ -92,10 +92,10 @@ public class NewEventActivity extends AppCompatActivity implements AdapterView.O
 
     public void setNewEvent() {
         String event = activitySpinner.getSelectedItem().toString();
-        String subType = activitySubTypeSpinner.getSelectedItem().toString();
+        String activitySubType = activitySubTypeSpinner.getSelectedItem().toString();
         Intent intent = new Intent(NewEventActivity.this, MainActivity.class);
         intent.putExtra("eventType", event);
-        intent.putExtra("subType", subType);
+        intent.putExtra("activitySubType", activitySubType);
         intent.putExtra("dateTime", selectedTime);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
