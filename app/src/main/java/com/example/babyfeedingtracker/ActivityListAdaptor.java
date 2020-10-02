@@ -11,6 +11,8 @@ import android.widget.TextView;
 import com.example.babyfeedingtracker.model.ActivityItem;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.DateFormat;
@@ -22,6 +24,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class ActivityListAdaptor extends RecyclerView.Adapter<ActivityListAdaptor.ActivityViewHolder> {
+    private static final String USERS_COLLECTION = "users";
+    private static final String ACTIVITIES_COLLECTION = "activities";
+
     private ArrayList<ActivityItem> mDataset;
     private OnItemDeleteListener onItemDeleteListener;
 
@@ -91,23 +96,28 @@ public class ActivityListAdaptor extends RecyclerView.Adapter<ActivityListAdapto
     public void removeAt(int position) {
         String itemId = mDataset.get(position).getId();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("activities").document(itemId)
-                .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("DELETE", "DocumentSnapshot successfully deleted!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("DELETE", "Error deleting document", e);
-                    }
-                });
-        mDataset.remove(position);
-        notifyItemRemoved(position);
-        notifyItemRangeChanged(position, mDataset.size());
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(user != null) {
+            db.collection(USERS_COLLECTION).document(user.getUid()).collection(ACTIVITIES_COLLECTION)
+                    .document(itemId)
+                    .delete()
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d("DELETE", "DocumentSnapshot successfully deleted!");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w("DELETE", "Error deleting document", e);
+                        }
+                    });
+            mDataset.remove(position);
+            notifyItemRemoved(position);
+            notifyItemRangeChanged(position, mDataset.size());
+        }
+
         if(onItemDeleteListener != null) {
             onItemDeleteListener.onItemDelete();
         }

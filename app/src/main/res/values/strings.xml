@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Baby Feeding Tracker</string>
+    <string name="app_login">Sign In</string>
+    <string name="app_logout">Sign Out</string>
     <string-array name="activities">
         <item>Feeding</item>
         <item>Diaper</item>
