@@ -79,7 +79,7 @@
                 android:layout_marginStart="8dp"
                 android:paddingTop="8dp"
                 android:text=""
-                android:textSize="24sp"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -133,7 +133,7 @@
                 android:layout_marginStart="8dp"
                 android:paddingTop="8dp"
                 android:text=""
-                android:textSize="24sp"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
             <TextView
