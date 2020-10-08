@@ -72,11 +72,10 @@ public class MainActivity extends AppCompatActivity
         latestFeedingTime = findViewById(R.id.feedingDateTime);
         latestDiaperTime = findViewById(R.id.diaperDateTime);
         spinner = findViewById(R.id.progressSpinner);
-        spinner.setVisibility(View.VISIBLE);
-
+        spinner.setVisibility(View.GONE);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if(user != null) {
-            Log.i("AUTH", "OnCreate Logged in user: " + user.getDisplayName());
+            spinner.setVisibility(View.VISIBLE);
         } else {
             Log.i("AUTH", "OnCreate Logged in user: none");
         }
@@ -129,6 +128,60 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
+    private ArrayList<ActivityItem> populateData() {
+        dataList = new ArrayList<>();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(user != null) {
+            db.collection(USERS_COLLECTION).document(user.getUid()).collection(ACTIVITIES_COLLECTION)
+                    .orderBy("dateTime", Query.Direction.DESCENDING)
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    ActivityItem item = new ActivityItem();
+                                    item.setId(document.getId());
+                                    item.setActivityType(document.getString("activityType"));
+                                    item.setActivitySubType(document.getString("activitySubType"));
+                                    item.setDateTime(document.getLong("dateTime"));
+                                    dataList.add(item);
+                                }
+                            } else {
+                                Log.d("ERROR", "Error getting documents: ", task.getException());
+                            }
+                            addItemToTodaysLists();
+                            refreshData();
+                            spinner.setVisibility(View.GONE);
+                        }
+                    });
+        } else {
+            refreshData();
+        }
+
+        return dataList;
+    }
+
+    private void refreshData() {
+        ActivityListAdaptor mAdapter = new ActivityListAdaptor(dataList);
+        mAdapter.setOnItemDeleteListener(this);
+        mAdapter.notifyDataSetChanged();
+        recyclerView.setAdapter(mAdapter);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        MenuItem item = menu.findItem(R.id.login);
+        if(user != null) {
+            item.setTitle("Signed in as " + user.getDisplayName());
+        } else {
+            item.setTitle("Sign In");
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.options_menu, menu);
@@ -168,6 +221,8 @@ public class MainActivity extends AppCompatActivity
                 .signOut(this)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     public void onComplete(@NonNull Task<Void> task) {
+                        populateData();
+                        addItemToTodaysLists();
                         Log.i("AUTH", "Logged in user: " + FirebaseAuth.getInstance().getCurrentUser());
                     }
                 });
@@ -176,65 +231,16 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         if (requestCode == RC_SIGN_IN) {
-//            IdpResponse response = IdpResponse.fromResultIntent(data);
-
             if (resultCode == RESULT_OK) {
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                populateData();
                 Log.i("AUTH", "Logged in user: " + user.getDisplayName());
                 Log.i("AUTH", "Logged in user ID: " + user.getUid());
-
             } else {
                 Log.e("AUTH", "Logged FAILED.");
             }
         }
-    }
-
-    private void refreshData() {
-        ActivityListAdaptor mAdapter = new ActivityListAdaptor(dataList);
-        mAdapter.setOnItemDeleteListener(this);
-        mAdapter.notifyDataSetChanged();
-        recyclerView.setAdapter(mAdapter);
-    }
-
-    private ArrayList<ActivityItem> populateData() {
-        dataList = new ArrayList<>();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if(user != null) {
-            db.collection(USERS_COLLECTION).document(user.getUid()).collection(ACTIVITIES_COLLECTION)
-                    .orderBy("dateTime", Query.Direction.DESCENDING)
-                    .get()
-                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if (task.isSuccessful()) {
-                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                    ActivityItem item = new ActivityItem();
-                                    item.setId(document.getId());
-                                    if (document.getData().get("activityType") != null) {
-                                        item.setActivityType(document.getData().get("activityType").toString());
-                                    }
-                                    if (document.getData().get("activitySubType") != null) {
-                                        item.setActivitySubType(document.getData().get("activitySubType").toString());
-                                    }
-                                    if (document.getData().get("dateTime") != null) {
-                                        item.setDateTime(Long.valueOf(document.getData().get("dateTime").toString()));
-                                    }
-                                    dataList.add(item);
-                                }
-                            } else {
-                                Log.d("ERROR", "Error getting documents: ", task.getException());
-                            }
-                            addItemToTodaysLists();
-                            refreshData();
-                            spinner.setVisibility(View.GONE);
-                        }
-                    });
-        }
-
-        return dataList;
     }
 
     private void addItemToTodaysLists() {
