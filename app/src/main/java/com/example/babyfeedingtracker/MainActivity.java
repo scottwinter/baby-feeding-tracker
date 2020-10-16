@@ -256,6 +256,7 @@ public class MainActivity extends AppCompatActivity
         long todayInMillis = c.getTimeInMillis();
         long latestFeeding = 0L;
         long latestDiaper = 0L;
+        boolean hasDiaperChange = false;
 
         for (ActivityItem item : dataList) {
             if (item.getActivityType().equalsIgnoreCase("feeding")) {
@@ -268,6 +269,7 @@ public class MainActivity extends AppCompatActivity
             }
 
             if (item.getActivityType().equalsIgnoreCase("diaper")) {
+                hasDiaperChange = true;
                 if (item.getDateTime() > latestDiaper) {
                     latestDiaper = item.getDateTime();
                 }
@@ -287,7 +289,7 @@ public class MainActivity extends AppCompatActivity
         }
         Date diaperDate = new Date(latestDiaper);
 
-        if (todaysDiapers.size() > 0) {
+        if (hasDiaperChange) {
             latestDiaperTime.setText(dateFormat.format(diaperDate));
         } else {
             latestDiaperTime.setText(NONE);
