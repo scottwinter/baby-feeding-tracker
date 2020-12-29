@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity
         implements DeleteActivityDialog.DeleteActivityDialogListener, OnItemDeleteListener {
 
     private static final int RC_SIGN_IN = 123;
+    private static final int DAYS_LOOK_BACK = -7;
     private static final String USERS_COLLECTION = "users";
     private static final String ACTIVITIES_COLLECTION = "activities";
     private static final String NONE = "None";
@@ -129,12 +130,18 @@ public class MainActivity extends AppCompatActivity
     }
 
     private ArrayList<ActivityItem> populateData() {
+
+        Calendar dataStart = Calendar.getInstance();
+        dataStart.add(Calendar.DATE, DAYS_LOOK_BACK);
+        long dataStartTimeInMillis = dataStart.getTimeInMillis();
+
         dataList = new ArrayList<>();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if(user != null) {
             db.collection(USERS_COLLECTION).document(user.getUid()).collection(ACTIVITIES_COLLECTION)
                     .orderBy("dateTime", Query.Direction.DESCENDING)
+                    .whereGreaterThan("dateTime", dataStartTimeInMillis)
                     .get()
                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
