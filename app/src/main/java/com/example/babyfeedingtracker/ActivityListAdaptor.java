@@ -1,7 +1,9 @@
 package com.example.babyfeedingtracker;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -88,6 +90,18 @@ public class ActivityListAdaptor extends RecyclerView.Adapter<ActivityListAdapto
                             .setIcon(android.R.drawable.ic_dialog_alert)
                             .show();
                     return true;
+                }
+            });
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    ActivityItem item = mDataset.get(getAdapterPosition());
+                    Intent intent = new Intent(v.getContext(), EditEventActivity.class);
+                    intent.putExtra("eventType", item.getActivityType());
+                    intent.putExtra("activitySubType", item.getActivitySubType());
+                    intent.putExtra("itemDateTime", item.getDateTime());
+                    intent.putExtra("id", item.getId());
+                    ((Activity) v.getContext()).startActivityForResult(intent, 1);
                 }
             });
         }

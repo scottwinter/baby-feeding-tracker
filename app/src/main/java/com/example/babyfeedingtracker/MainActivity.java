@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity
 
         String eventType = getIntent().getStringExtra("eventType");
         String activitySubType = getIntent().getStringExtra("activitySubType");
+        String itemId = getIntent().getStringExtra("id");
         long dateTime = getIntent().getLongExtra("dateTime", 0L);
         if (dateTime > 0 && eventType != null) {
             ActivityItem activityItem = new ActivityItem(eventType);
@@ -90,20 +91,27 @@ public class MainActivity extends AppCompatActivity
             activityItem.setDateTime(dateTime);
             if(user != null) {
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
-                db.collection(USERS_COLLECTION).document(user.getUid()).collection(ACTIVITIES_COLLECTION)
-                        .add(activityItem)
-                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                            @Override
-                            public void onSuccess(DocumentReference documentReference) {
+                if(itemId != null) {
+                    activityItem.setId(itemId);
+                    db.collection(USERS_COLLECTION).document(user.getUid()).collection(ACTIVITIES_COLLECTION)
+                            .document(itemId)
+                            .set(activityItem);
+                } else {
+                    db.collection(USERS_COLLECTION).document(user.getUid()).collection(ACTIVITIES_COLLECTION)
+                            .add(activityItem)
+                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                @Override
+                                public void onSuccess(DocumentReference documentReference) {
 //                            Log.d("DATA", "DocumentSnapshot added with ID: " + documentReference.getId());
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.w("DATA", "Error adding document", e);
-                            }
-                        });
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w("DATA", "Error adding document", e);
+                                }
+                            });
+                }
             }
         }
 
