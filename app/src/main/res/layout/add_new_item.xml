@@ -11,9 +11,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:text="What action did you do?"
-        android:textSize="24sp"
+        android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -58,12 +58,26 @@
         app:layout_constraintTop_toBottomOf="@+id/date_picker" />
 
     <Button
-        android:id="@+id/date_time_set"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:id="@+id/date_time_save"
+        android:layout_width="165dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="16dp"
         android:layout_weight="1"
-        android:text="Set"
+        android:text="Save"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/time_picker" />
+        app:layout_constraintTop_toBottomOf="@+id/time_picker"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/date_time_cancel"
+        android:layout_width="165dp"
+        android:layout_height="60dp"
+        android:layout_marginEnd="16dp"
+        android:layout_weight="1"
+        android:text="Cancel"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/time_picker"
+        app:layout_constraintVertical_bias="0.0" />
 </androidx.constraintlayout.widget.ConstraintLayout>

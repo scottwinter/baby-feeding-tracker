@@ -48,8 +48,8 @@ public class NewEventActivity extends AppCompatActivity implements AdapterView.O
         feedingArrayAdapter.setDropDownViewResource(R.layout.spinner_list_item);
         activitySubTypeSpinner.setAdapter(feedingArrayAdapter);
 
-        Button setValues = findViewById(R.id.date_time_set);
-        setValues.setOnClickListener(new View.OnClickListener() {
+        Button saveValues = findViewById(R.id.date_time_save);
+        saveValues.setOnClickListener(new View.OnClickListener() {
            @Override
            public void onClick(View view) {
 
@@ -65,6 +65,13 @@ public class NewEventActivity extends AppCompatActivity implements AdapterView.O
                selectedTime = calendar.getTimeInMillis();
                setNewEvent();
            }});
+
+        Button cancel = findViewById(R.id.date_time_cancel);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                cancelEvent();
+            }});
 
     }
 
@@ -101,6 +108,11 @@ public class NewEventActivity extends AppCompatActivity implements AdapterView.O
         startActivity(intent);
     }
 
+    public void cancelEvent() {
+        Intent intent = new Intent(NewEventActivity.this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+    }
 
 
 //    public void showTimePickerDialog() {

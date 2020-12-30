@@ -53,7 +53,7 @@ public class EditEventActivity extends AppCompatActivity implements AdapterView.
         final DatePicker datePicker = (DatePicker) findViewById(R.id.date_picker);
         final TimePicker timePicker = (TimePicker) findViewById(R.id.time_picker);
 
-        Button setValues = findViewById(R.id.date_time_set);
+        Button setValues = findViewById(R.id.date_time_save);
         setValues.setOnClickListener(new View.OnClickListener() {
            @Override
            public void onClick(View view) {
@@ -67,6 +67,13 @@ public class EditEventActivity extends AppCompatActivity implements AdapterView.
                selectedTime = calendar.getTimeInMillis();
                setNewEvent();
            }});
+
+        Button cancel = findViewById(R.id.date_time_cancel);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                cancelEvent();
+            }});
 
         // Set values based on the item selected to edit
         String eventType = getIntent().getStringExtra("eventType");
@@ -134,7 +141,11 @@ public class EditEventActivity extends AppCompatActivity implements AdapterView.
         startActivity(intent);
     }
 
-
+    public void cancelEvent() {
+        Intent intent = new Intent(EditEventActivity.this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+    }
 
 //    public void showTimePickerDialog() {
 //        DialogFragment newFragment = new NewEventActivity.TimePickerFragment();
